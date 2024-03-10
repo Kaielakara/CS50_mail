@@ -28,6 +28,7 @@ function load_mailbox(mailbox) {
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#email-view').style.display = 'none';
 
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
@@ -36,9 +37,12 @@ function load_mailbox(mailbox) {
   .then(emails => {
 
     for (let index = 0; index < emails.length; index++) {
+      // create certain variables that would be used to store certain values
       let email = emails[index];
+      // the first variable is for the div that willbe seen as the child div of the div whihch is already present in the HTML file
       let email_div = document.createElement("div");
       document.querySelector('#emails-view').append(email_div);
+      // you now create new variables which you'll store the new 'p' tags that you'll store there
       let email_user = document.createElement('p');
       email_user.innerHTML = email.sender;
       email_div.append(email_user);
@@ -49,7 +53,8 @@ function load_mailbox(mailbox) {
       email_time.innerHTML = email.timestamp;
       email_div.append(email_time);
       email_time.className = "email_timestamp"
-      console.log(emails);
+      
+      email_div.addEventListener('click',() => load_email(email.id))
     }
     
   })
@@ -69,5 +74,30 @@ function submit_mail() {
   .then(response => response.json())
   .then(result => {
     console.log(result);
+  })
+}
+
+function load_email(num) {
+
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#email-view').style.display = 'block';
+
+  fetch(`/emails/${num}`)
+  .then(response => response.json())
+  .then(email => {
+
+    
+
+    const email_list = [email.sender, email.recipients, email.subject, email.timestamp];
+    const email_list_html = ["#email_from", "#email_to", "#email_subject", "#email_time"];
+
+    for (let index = 0; index < email_list.length; index++) {
+      document.querySelector(`${email_list_html[index]}`).innerHTML = ` ${email_list[index]}`;
+      console.log();
+    }
+
+    document.querySelector("#email_body").innerHTML = email.body
+
   })
 }

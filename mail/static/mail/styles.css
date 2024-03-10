@@ -15,3 +15,12 @@ textarea {
     position: absolute;
     right: 5px;
 }
+
+#email-view > div{
+    display: flex;
+    gap: 0.3rem;
+}
+
+.email_p{
+    font-weight: 700;
+}
