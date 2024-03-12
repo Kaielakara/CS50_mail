@@ -53,16 +53,21 @@ function load_mailbox(mailbox) {
       email_time.innerHTML = email.timestamp;
       email_div.append(email_time);
       email_time.className = "email_timestamp"
+      if (email.read == true){
+        email_div.style.background = "white";
+      }
       
-      email_div.addEventListener('click',() => load_email(email.id))
+      email_div.addEventListener('click', () => load_email(email.id))
     }
+
+    console.log(emails);
     
   })
 }
 
 function submit_mail() {
 
-  fetch("emails/", {
+  fetch("/emails", {
     method: "POST",
     body: JSON.stringify({
       recipients: document.querySelector('#compose-recipients').value,
@@ -94,10 +99,54 @@ function load_email(num) {
 
     for (let index = 0; index < email_list.length; index++) {
       document.querySelector(`${email_list_html[index]}`).innerHTML = ` ${email_list[index]}`;
-      console.log();
     }
 
+    email_reply = document.querySelector("#email_reply")
+    email_archive = document.querySelector("#email_archive")
+    if(email.archived == false){
+      email_archive.innerHTML = "Archive";
+      email_archive.addEventListener('click', () => archive(num))
+    }else{
+      email_archive.innerHTML = "UnArchive"
+      email_archive.addEventListener('click', () => unarchive(num))
+    }
+
+    
+    
+
     document.querySelector("#email_body").innerHTML = email.body
+    console.log(email);
 
   })
+
+  fetch(`/emails/${num}`, {
+    method: "PUT",
+    body: JSON.stringify({
+      read: true
+    })
+  })
+}
+
+
+function archive(id){
+
+  fetch(`/emails/${id}`, {
+    method: "PUT",
+    body: JSON.stringify({
+      archived:true
+    })
+  })
+  load_mailbox('inbox');  
+
+}
+
+function unarchive(id){
+
+  fetch(`/emails/${id}`, {
+    method: "PUT",
+    body: JSON.stringify({
+      archived: false
+    })
+  })
+  load_mailbox('inbox');
 }
