@@ -101,8 +101,11 @@ function load_email(num) {
       document.querySelector(`${email_list_html[index]}`).innerHTML = ` ${email_list[index]}`;
     }
 
-    email_reply = document.querySelector("#email_reply")
-    email_archive = document.querySelector("#email_archive")
+    email_reply = document.querySelector("#email_reply");
+    email_archive = document.querySelector("#email_archive");
+
+    email_reply.addEventListener('click', () => reply(email.sender, email.subject, email.timestamp) );
+
     if(email.archived == false){
       email_archive.innerHTML = "Archive";
       email_archive.addEventListener('click', () => archive(num))
@@ -127,7 +130,7 @@ function load_email(num) {
   })
 }
 
-
+// this code runs the archive function using the PUT request method which modifys the json file
 function archive(id){
 
   fetch(`/emails/${id}`, {
@@ -140,6 +143,7 @@ function archive(id){
 
 }
 
+// this block code is for unarchiving an email
 function unarchive(id){
 
   fetch(`/emails/${id}`, {
@@ -149,4 +153,26 @@ function unarchive(id){
     })
   })
   load_mailbox('inbox');
+}
+
+
+function reply(sender, subject, timestamp){
+
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'block';
+
+  // Clear out composition fields
+  document.querySelector('#compose-recipients').value = sender;
+  document.querySelector('#compose-subject').value = `Re: ${subject}`;
+  document.querySelector('#compose-body').value = `On ${timestamp} ${sender} wrote: `;
+
+
+  fetch('/emails', {
+    method: "POST",
+    body: JSON.stringify({
+      recipients: sender,
+      subject: `Re: ${subject}`,
+      body: document.querySelector('#compose-body').value
+    })
+  })
 }
